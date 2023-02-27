@@ -1,8 +1,9 @@
 package particle_gravity_simulation.objects;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import a.geometry.AVector;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
 public class StationaryParticle implements WorldObject{
 	private int r;
 	private AVector position;
@@ -60,15 +61,17 @@ public class StationaryParticle implements WorldObject{
 	
 	//come disegnare la particella
 	@Override
-	public void draw(Graphics g) {
+	public void draw(GraphicsContext g) {
+		
 		//colore in base alle impostazioni date
 		if(this.getIsPositive()>0)
-			g.setColor(Color.red);
+
+			g.setFill(Color.RED);
 				else 
 					if(this.getIsPositive()<0)
-						g.setColor(Color.blue);
+						g.setFill(Color.BLUE);
 						else
-							g.setColor(Color.gray);
+							g.setFill(Color.GRAY);
 				
 				
 			//riempo ovale con posizioni della particella (le casto in int perchè sono double) e con altezza e larghezza uguali a raggio^2

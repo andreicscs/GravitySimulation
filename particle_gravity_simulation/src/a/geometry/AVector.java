@@ -194,6 +194,22 @@ public class AVector {
 		
 		return mag;
 	}
+	
+	
+	//distance al quadrato(senza sqrt per performance aggiuntive)
+	public static double distanceSQ(AVector a,AVector b) {
+		double distanceX = b.getX() - a.getX();
+        double distanceY = b.getY() - a.getY();
+        double distanceSquared = distanceX * distanceX + distanceY * distanceY;
+        return distanceSquared;
+	}
+	
+	public double distanceSQ(AVector b) {
+		double distanceX = b.getX() - this.getX();
+        double distanceY = b.getY() - this.getY();
+        double distanceSquared = distanceX * distanceX + distanceY * distanceY;
+        return distanceSquared;
+	}
 	//distanza tra due vettori
 	public double distance(AVector b) {
 		double risy= Math.abs(this.y-b.getY());

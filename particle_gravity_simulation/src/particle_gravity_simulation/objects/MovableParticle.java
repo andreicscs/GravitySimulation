@@ -36,7 +36,7 @@ public class MovableParticle extends StationaryParticle{
 	//applica la forza passata
 	@Override
 	public void update(AVector force) {
-		this.edge(SimulationPanel.getwidth(),SimulationPanel.getheight()); // controllo se tocca un bordo dello schermo
+		this.edge((int)SimulationPanel.width,(int)SimulationPanel.height); // controllo se tocca un bordo dello schermo
 		
 		this.acceleration.add(AVector.div(force, this.getMass()));//aggiungo la forza divisa per la messa, all'accelerazione
 		this.velocity.add(this.acceleration);//sommo velocità e accelerazione

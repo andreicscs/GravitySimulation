@@ -1,8 +1,7 @@
 package particle_gravity_simulation.objects;
 
-import java.awt.Graphics;
-
 import a.geometry.AVector;
+import javafx.scene.canvas.GraphicsContext;
 
 interface WorldObject {
 
@@ -13,5 +12,5 @@ interface WorldObject {
 	AVector getPosition();
 	void setPosition(AVector position);
 	void update(AVector force);
-	void draw(Graphics g);
+	void draw(GraphicsContext g2d);
 }
