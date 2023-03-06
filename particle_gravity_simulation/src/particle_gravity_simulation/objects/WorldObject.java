@@ -10,7 +10,11 @@ interface WorldObject {
 	int getIsPositive();
 	void setIsPositive(int isPositive);
 	AVector getPosition();
+	AVector getVelocity();
+	void setVelocity(AVector velocity);
 	void setPosition(AVector position);
 	void update(AVector force);
 	void draw(GraphicsContext g2d);
+	int getR();
+	
 }

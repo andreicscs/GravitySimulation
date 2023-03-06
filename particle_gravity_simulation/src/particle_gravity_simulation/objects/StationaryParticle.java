@@ -34,6 +34,7 @@ public class StationaryParticle implements WorldObject{
 	public void setIsPositive(int isPositive) {
 		this.isPositive = isPositive;
 	}
+	@Override
 	public int getR() {
 		return r;
 	}
@@ -47,7 +48,6 @@ public class StationaryParticle implements WorldObject{
 	}
 	@Override
 	public void setPosition(AVector position) {
-		this.position.copy(position);
 		
 	}
 	
@@ -65,7 +65,6 @@ public class StationaryParticle implements WorldObject{
 		
 		//colore in base alle impostazioni date
 		if(this.getIsPositive()>0)
-
 			g.setFill(Color.RED);
 				else 
 					if(this.getIsPositive()<0)
@@ -76,6 +75,16 @@ public class StationaryParticle implements WorldObject{
 				
 			//riempo ovale con posizioni della particella (le casto in int perchè sono double) e con altezza e larghezza uguali a raggio^2
 			g.fillOval((int)this.getPosition().getX(), (int)this.getPosition().getY(), this.getR()*2, this.getR()*2);
+		
+	}
+	@Override
+	public AVector getVelocity() {
+		// TODO Auto-generated method stub
+		return new AVector();
+	}
+	@Override
+	public void setVelocity(AVector velocity) {
+		// TODO Auto-generated method stub
 		
 	}
 

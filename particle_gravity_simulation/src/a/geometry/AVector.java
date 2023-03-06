@@ -175,6 +175,15 @@ public class AVector {
 		this.setX(Math.cos(this.points())*magnitude);
 		this.setY(Math.sin(this.points())*magnitude);
 	}
+	//imposta la magnitudine statico
+	public static AVector setMag(AVector V, double magnitude) {
+		AVector VCopy=new AVector();
+		VCopy.copy(V);
+		VCopy.setX(Math.cos(V.points())*magnitude);
+		VCopy.setY(Math.sin(V.points())*magnitude);
+		
+		return VCopy;
+	}
 	//imposta la direzione
 	public void setDir(double alfa) {
 		this.setX(Math.cos(alfa)*this.getMag());
@@ -223,5 +232,29 @@ public class AVector {
 		double dist=Math.sqrt((Math.pow(risx, 2)+Math.pow(risy, 2)));
 		return dist;
 	}
+	
+	
+	public static double dot(AVector a, AVector b) {
+		double result=0.0;
+		result=(a.getX()*b.getX()) + (a.getY()*b.getY());
+		return result;
+	}
+	public void normalize() {
+	    double mag = getMag();
+	    if (mag > 0) {
+	        this.x /= mag;
+	        this.y /= mag;
+	    }
+	}
+	static public AVector normalize(AVector V) {
+		
+	    double mag = V.getMag();
+	    if (mag > 0) {
+	    	V.setX(V.getX() / mag);
+	    	V.setY(V.getY() / mag);
+	    }
+		return V;
+	}
+	
 	
 }

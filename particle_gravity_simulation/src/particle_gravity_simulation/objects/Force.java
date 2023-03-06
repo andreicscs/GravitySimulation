@@ -1,10 +1,10 @@
 package particle_gravity_simulation.objects;
 
 import a.geometry.AVector;
+import particle_gravity_simulation.graphics.SimulationControls;
 
 public class Force {
     
-    private static final double G = 10;
     
     public static AVector GravityV(WorldObject a, WorldObject b) {
         double f = GravityM(a, b);
@@ -24,13 +24,15 @@ public class Force {
     private static double GravityM(WorldObject a, WorldObject b) {
     	double distanceSquared=a.getPosition().distanceSQ(b.getPosition());
     	
+    	
         if (distanceSquared < 625) {
             distanceSquared = 625;
         }
         
+    	
         double m1 = a.getMass();
         double m2 = b.getMass();
-        double force = (G * m1 * m2) / distanceSquared;
+        double force = (SimulationControls.gSlider * m1 * m2) / distanceSquared;
         
         return force;
     }

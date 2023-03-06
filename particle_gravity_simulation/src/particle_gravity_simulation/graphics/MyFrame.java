@@ -15,10 +15,12 @@ public class MyFrame extends Application {
     public void start(Stage primaryStage) throws Exception {
         gamePanel = new SimulationPanel();
         //sliders = new Sliders();
-
+        
+		gamePanel.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+		
         primaryStage.setTitle("Particle's gravity Simulation");
         primaryStage.setScene(new Scene(gamePanel, 1366, 768));
-        primaryStage.setResizable(false);
+        
         primaryStage.show();
 
         gamePanel.start();
