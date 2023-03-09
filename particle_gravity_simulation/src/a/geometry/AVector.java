@@ -128,6 +128,14 @@ public class AVector {
 		this.setY(ToCopy.getY());
 	}
 	
+	//clona se stesso
+	public AVector clone() {
+		AVector cloned = new AVector();
+		cloned.setX(this.getX());
+		cloned.setY(this.getY());
+		return cloned;
+	}
+	
 	//moltiplico per -1 per invertire il vettore
 	public void neg() {
 		this.mult(-1);

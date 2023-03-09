@@ -1,8 +1,11 @@
 package particle_gravity_simulation.graphics;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class MyFrame extends Application {
 
@@ -22,7 +25,13 @@ public class MyFrame extends Application {
         primaryStage.setScene(new Scene(gamePanel, 1366, 768));
         
         primaryStage.show();
-
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
         gamePanel.start();
     }
 

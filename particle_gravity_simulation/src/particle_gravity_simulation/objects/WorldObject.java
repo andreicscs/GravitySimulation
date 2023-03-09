@@ -3,7 +3,7 @@ package particle_gravity_simulation.objects;
 import a.geometry.AVector;
 import javafx.scene.canvas.GraphicsContext;
 
-interface WorldObject {
+public interface WorldObject {
 
 	int getMass();
 	void setMass(int mass);
@@ -15,6 +15,7 @@ interface WorldObject {
 	void setPosition(AVector position);
 	void update(AVector force);
 	void draw(GraphicsContext g2d);
+	void drawTrail(GraphicsContext g);
 	int getR();
-	
+	WorldObject clone();
 }

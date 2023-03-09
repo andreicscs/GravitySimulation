@@ -7,12 +7,78 @@
 	-fx-background-color : rgba(0, 0, 0);
 	-fx-background-radius: 40px;
 }
+.ToggleButton:hover{
+	-fx-background-color : rgba(70, 70, 70);
+}
+.ToggleButton:selected{
+	-fx-background-color : rgba(50, 50, 50);
+}
 
 #ClearButton{
 	-fx-background-color : rgba(100, 0, 0);
-	-fx-background-radius: 40px;
+	-fx-background-radius: 20px;
 }
 
 #ClearButton:hover{
 	-fx-background-color : rgba(120, 0, 0);
 }
+
+
+
+.slider .thumb{
+	-fx-background-color : rgba(255, 255, 255);
+	
+}
+
+.slider .track{
+	-fx-background-color : rgba(0, 0, 0);
+}
+
+.slider:hover .thumb{
+	-fx-scale-x: 1.2;
+	-fx-scale-y: 1.2;
+}
+
+.slider:hover .track{
+	-fx-background-color : rgba(70, 70, 70);
+}
+
+
+
+
+.choice-box .context-menu { 
+	-fx-background-color: black;
+	-fx-background-radius: 10px; 
+	
+}
+
+.choice-box .menu-item:focused { 
+	-fx-background-color: rgba(50, 50, 50);
+	-fx-background-radius: 40px; 
+	
+}
+
+.choice-box .menu-item > .label { 
+	-fx-text-fill: white;
+	
+}
+
+.choice-box .menu-item:focused > .label { 
+	-fx-text-fill: white
+	
+}
+
+
+.choice-box {
+	-fx-background-radius: 40px; 
+  	-fx-background-color: black;
+ 	-fx-mark-color: rgba(255, 255, 255);
+ 	
+ 	
+}
+.choice-box > .label { 
+	-fx-text-fill: white;
+	-fx-alignment: center;
+	
+}
+

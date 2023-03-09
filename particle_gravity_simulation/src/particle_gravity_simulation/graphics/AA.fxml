@@ -12,11 +12,11 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="632.0" prefWidth="295.0" styleClass="SimulationControls" stylesheets="@style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="particle_gravity_simulation.graphics.SimulationControls">
    <children>
       <AnchorPane layoutX="778.0" layoutY="-2.0" prefHeight="640.0" prefWidth="222.0" />
-      <Slider fx:id="forceGsl" layoutX="78.0" layoutY="79.0" min="1.0" stylesheets="@style.css" value="15.0">
+      <Slider fx:id="forceGsl" layoutX="65.0" layoutY="79.0" min="1.0" prefHeight="29.0" prefWidth="168.0" stylesheets="@style.css" value="15.0">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor></Slider>
-      <ToggleButton id="#Tbutton" layoutX="61.0" layoutY="138.0" mnemonicParsing="false" onAction="#btIsMovable" prefHeight="42.0" prefWidth="174.0" styleClass="ToggleButton" stylesheets="@style.css" text="Movable" textFill="WHITE">
+      <ToggleButton id="#Tbutton" layoutX="61.0" layoutY="138.0" mnemonicParsing="false" onAction="#btIsMovable" prefHeight="42.0" prefWidth="174.0" selected="true" styleClass="ToggleButton" stylesheets="@style.css" text="Movable" textFill="WHITE">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>
@@ -24,17 +24,17 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ToggleButton>
-      <ChoiceBox fx:id="isPositive" layoutX="73.0" layoutY="226.0" prefWidth="150.0">
+      <ChoiceBox fx:id="isPositive" layoutX="65.0" layoutY="201.0" prefHeight="36.0" prefWidth="168.0">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
       </ChoiceBox>
-      <Slider fx:id="particleMassSl" layoutX="78.0" layoutY="344.0" min="1.0" value="15.0">
+      <Slider fx:id="particleMassSl" layoutX="51.0" layoutY="320.0" min="1.0" prefHeight="14.0" prefWidth="174.0" value="15.0">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
       </Slider>
-      <ToggleButton id="#Tbutton" layoutX="61.0" layoutY="407.0" mnemonicParsing="false" onAction="#btIsTrailOn" prefHeight="42.0" prefWidth="174.0" styleClass="ToggleButton" stylesheets="@style.css" text="Trail" textFill="WHITE">
+      <ToggleButton id="#Tbutton" layoutX="61.0" layoutY="413.0" mnemonicParsing="false" onAction="#btIsTrailOn" prefHeight="42.0" prefWidth="174.0" selected="true" styleClass="ToggleButton" stylesheets="@style.css" text="Trail" textFill="WHITE">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>
@@ -42,7 +42,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ToggleButton>
-      <ToggleButton id="#Tbutton" layoutX="61.0" layoutY="486.0" mnemonicParsing="false" onAction="#btIsCollisionOn" prefHeight="42.0" prefWidth="174.0" styleClass="ToggleButton" stylesheets="@style.css" text="Collisions" textFill="WHITE">
+      <ToggleButton id="#Tbutton" layoutX="61.0" layoutY="492.0" mnemonicParsing="false" onAction="#btIsCollisionOn" prefHeight="42.0" prefWidth="174.0" selected="true" styleClass="ToggleButton" stylesheets="@style.css" text="Collisions" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
@@ -50,12 +50,18 @@
             <Font name="System Bold" size="15.0" />
          </font>
       </ToggleButton>
-      <Button id="ClearButton" layoutX="81.0" layoutY="576.0" mnemonicParsing="false" onAction="#btClear" prefHeight="42.0" prefWidth="134.0" stylesheets="@style.css" text="Clear" textFill="WHITE">
+      <Button id="ClearButton" layoutX="84.0" layoutY="582.0" mnemonicParsing="false" onAction="#btClear" prefHeight="36.0" prefWidth="128.0" stylesheets="@style.css" text="Clear" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
       </Button>
-      <Label alignment="CENTER" layoutX="99.0" layoutY="62.0" prefHeight="17.0" prefWidth="99.0" text="'G' Costant" textAlignment="CENTER" />
-      <Label alignment="CENTER" layoutX="99.0" layoutY="327.0" prefHeight="17.0" prefWidth="99.0" text="Particle Mass" />
+      <Label alignment="CENTER" layoutX="99.0" layoutY="62.0" prefHeight="17.0" prefWidth="99.0" text="'G' Costant" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+      <Label alignment="CENTER" layoutX="98.0" layoutY="301.0" prefHeight="17.0" prefWidth="99.0" text="Particle Mass" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
    </children>
 </AnchorPane>

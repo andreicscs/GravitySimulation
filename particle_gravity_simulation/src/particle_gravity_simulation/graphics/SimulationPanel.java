@@ -1,6 +1,7 @@
 package particle_gravity_simulation.graphics;
 
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.TranslateTransition;
@@ -15,83 +16,112 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+
 import particle_gravity_simulation.objects.SimulationWorld;
-
-
+import particle_gravity_simulation.objects.WorldObject;
 
 public class SimulationPanel extends StackPane {
-	private boolean isMenuOpen;
-    private final int FPS = 60;
-    private final long TARGET_TIME = 1000000000L / FPS;
-    private AnimationTimer animationTimer;
-    private boolean start = true;
+    private boolean isMenuOpen;
+    //getWidth() , getHeight(), non sono statici..
     static public double width;
     static public double height;
+    
     private Canvas canvas;
-    private GraphicsContext g2d;
-    private SimulationWorld world;
-
+    public static final Semaphore graphicsSemaphore = new Semaphore(1,true);
+    private static GraphicsContext g2d;
+    static public SimulationWorld world;
+    
+    private boolean wasMousePrimaryDown=false;
+    
+    private final int FPS = 60;
+    private final long TARGET_TIME = 1000000000L / FPS;
+    private boolean start = true;
+    private AnimationTimer animationTimer1;
+    Thread thread1;
+    private AnimationTimer animationTimer2;
+    
     public SimulationPanel() throws IOException {
         canvas = new Canvas();
         getChildren().add(canvas);
         canvas.widthProperty().bind(widthProperty());
         canvas.heightProperty().bind(heightProperty());
-       
-        canvas.setOnMousePressed(this::handleMouseClicked);
-        canvas.setOnMouseReleased(this::handleMouseClicked);
         
+        canvas.setOnMouseDragged(this::handleMouseDragged);
+        canvas.setOnMousePressed(this::handleMousePressed);
+        canvas.setOnMouseReleased(this::handleMouseReleased);
 
         
-        animationTimer = new AnimationTimer() {
-	        @Override
-	        public void handle(long currentTime) {
-	            if (start) {
-	            	width = getWidth();
-	                height = getHeight();
-	                
-	                long startTime=System.currentTimeMillis();
-	                updateWorld(); 
-                	drawBackground();
-                	drawGame();              
-	                	
-	                	long lastTime = System.currentTimeMillis();
-	                    long elapsedTime = lastTime-startTime;
-	                if (elapsedTime < TARGET_TIME) {
-						long sleeptime=(TARGET_TIME-elapsedTime)/1000000; //convert in milliseconds
-						sleep(sleeptime);
+        //Calculating Loop
+        thread1 = new Thread(new Runnable() {
+	            @Override
+				public void run() {
+	            	while (start) {
+	                	width=getWidth();
+	                	height=getHeight();
+
+	                    long startTime = System.currentTimeMillis();
+	                    updateWorld();
+	                    
+	                    long lastTime = System.currentTimeMillis();
+	                    long elapsedTime = lastTime - startTime;
+	                    //se l'update e il rendering ci ha messo troppo poco tempo, aspetta il tempo rimanente per avere 60fps (FPS)
+	                    if (elapsedTime < TARGET_TIME) {
+	                        long sleepTime = (TARGET_TIME - elapsedTime) / 1000000; // convert in milliseconds
+	                        sleep(sleepTime);
+	                    }
 	                }
 	            }
-	        }
+           });
+        
+        
+       
+        //Drawing Loop
+        animationTimer1 = new AnimationTimer() {
+            @Override
+            public void handle(long currentTime) {
+                if (start) {
+
+
+                    long startTime = System.currentTimeMillis();
+                    drawBackground();
+                    drawGame();
+                    
+                    long lastTime = System.currentTimeMillis();
+                    long elapsedTime = lastTime - startTime;
+                    //se l'update e il rendering ci ha messo troppo poco tempo, aspetta il tempo rimanente per avere 60fps (FPS)
+                    if (elapsedTime < TARGET_TIME) {
+                        long sleepTime = (TARGET_TIME - elapsedTime) / 1000000; // convert in milliseconds
+                        sleep(sleepTime);
+                    }
+                }
+            }
         };
         
-        
-        
-        
-        
-        //SimulationControls controls = new SimulationControls();
+           
+           
+        //carico l'fxml file, che contiene le impostazioni
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("AA.fxml"));
-        Parent controls=loader.load();
-
-
-        Button hamburgerButton = new Button("✖");
-        hamburgerButton.setStyle("-fx-background-color : rgba(100, 100, 100,0);\r\n"
-        		+ "	-fx-background-radius: 40px; -fx-text-fill:white; -fx-font-size: 20pt ;");
-
-        hamburgerButton.setMinWidth(30);
-        hamburgerButton.setMinHeight(30);
+        Parent controls = loader.load();
         
+        //stile bottone apertura/chiusura menu
+        Button hamburgerButton = new Button("ⓧ");
+        hamburgerButton.setStyle("-fx-background-color : rgba(100, 100, 100,0.2);\r\n"
+                + "	-fx-background-radius: 20px; -fx-text-fill:white; -fx-font-size: 20pt; -fx-cursor: hand;");
+        //hamburgerButton.setMaxWidth(60);
+        //hamburgerButton.setMaxHeight(30);
+
         getChildren().addAll(controls, hamburgerButton);
         setAlignment(Pos.TOP_RIGHT);
-
-        isMenuOpen=true;
-
+        
+        //all'inizio è aperto
+        isMenuOpen = true;
         hamburgerButton.setOnAction(event -> {
             if (isMenuOpen) {
                 // Chiudi il menu
                 TranslateTransition transition = new TranslateTransition(Duration.millis(200), controls);
                 transition.setToX(400);
                 transition.play();
-                
+
                 hamburgerButton.setText("≡");
                 isMenuOpen = false;
             } else {
@@ -99,35 +129,27 @@ public class SimulationPanel extends StackPane {
                 TranslateTransition transition = new TranslateTransition(Duration.millis(200), controls);
                 transition.setToX(0);
                 transition.play();
-                
-                hamburgerButton.setText("✖");
+
+                hamburgerButton.setText("ⓧ");
                 isMenuOpen = true;
             }
         });
-         
-         
-        
     }
 
     
-    
     private void sleep(long time) {
-		//il thread potrebbe essere interrotto mentre è in sleep
-		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
-			System.err.println(e);
-		}
-	}
-    
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            System.err.println(e);
+        }
+    }
     
     public void start() {
         world = new SimulationWorld();
         g2d = canvas.getGraphicsContext2D();
-        g2d.setLineWidth(1.0);
-        g2d.setLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
-        g2d.setLineJoin(javafx.scene.shape.StrokeLineJoin.ROUND);
-        animationTimer.start();
+        animationTimer1.start();
+        thread1.start();
     }
 
     private void updateWorld() {
@@ -135,49 +157,146 @@ public class SimulationPanel extends StackPane {
     }
 
     private void drawBackground() {
-        g2d.setFill(Color.rgb(50, 50, 50));
-        g2d.fillRect(0, 0, width, height);
+			try {
+				graphicsSemaphore.acquire();
+				g2d.setFill(Color.rgb(50, 50, 50));
+		        g2d.fillRect(0, 0, width, height);
+			} catch (InterruptedException e) {
+				System.out.println(e);
+				e.printStackTrace();
+			}finally {
+				graphicsSemaphore.release();
+		    }
     }
-
+    
     private void drawGame() {
-        world.draw(g2d);
+        world.draw();
     }
     
+    static public void draw(WorldObject toDraw) {
+		try {
+			graphicsSemaphore.acquire();
+	    	toDraw.draw(g2d);
+			if(SimulationControls.isTrailOn) {
+				toDraw.drawTrail(g2d);
+			}
+		} catch (InterruptedException e) {
+			System.out.println(e);
+			e.printStackTrace();
+		}finally {
+			graphicsSemaphore.release();
+        }
+	}
+	
+	static public void drawCircle(double x,double y,int r) {
+		try {
+			graphicsSemaphore.acquire();
+			
+			//bisogna dare un colore per forza altrimenti la preview della prima particella non viene disegnata
+			//disegno il cerchio con il colore dato dal simulation controls
+			if(SimulationControls.isPositiveSelected>0)
+				g2d.setFill(Color.RED);
+			else if(SimulationControls.isPositiveSelected<0)
+				g2d.setFill(Color.BLUE);
+			else
+				g2d.setFill(Color.GRAY);
+			
+		    g2d.fillOval(x, y, r, r);
+		} catch (InterruptedException e) {
+			System.out.println(e);
+			e.printStackTrace();
+		}finally {
+			graphicsSemaphore.release();
+	    }
+	}
     
     
+	//handle mouse actions//
+	
+    //pos mouse premuto
+    private double x1=0;
+    private double y1=0;
     
-    int x1=1;
-	int y1=1;
-	int x2=1;
-	int y2=1;
-    private void handleMouseClicked(MouseEvent e) {
-    	
-    	//spawnare particelle solo con il tasto primario
-    	if(e.getButton()==MouseButton.PRIMARY) {    		
-    		if (e.isPrimaryButtonDown()) {		
-    			//punto iniziale (mouse down)
-    			x1=(int)e.getX();
-    			y1=(int)e.getY();
-
-    			//spawno una stationary particle temporaneamente, per non farla muovere mentre gli si da la froza iniziale
-        		world.addP((int)e.getX(), (int)e.getY(),false); 
-        		
-            }
-    		if (!e.isPrimaryButtonDown()) {
-    			//punto finale(mouse released)
-            	x2=(int)e.getX();
-            	y2=(int)e.getY();
-            	
-            	//rimuovo la particella temporanea
-            	world.removeLastP();
-            	//ne spawno un'altra prendendo ismovable dal controlpanel
-            	world.addP(x1, y1,SimulationControls.isMovable);
-            	//e gli do la spinta iniziale 
-            	world.calcInitForce(x1, y1, x2, y2);
-            	
-            }
+    //pos mouse mosso in seguito essere premuto
+    private double x2=0;
+    private double y2=0;
+    
+    //calcolo distanza fra i due punti
+    double risy;
+	double risx;
+	double dist;
+	
+    private void handleMousePressed(MouseEvent event){
+    	if (event.getButton()==MouseButton.PRIMARY){
+    		wasMousePrimaryDown=true;
+    		
+            //punto iniziale (mouse down per la prima volta)
+            x1=event.getX();
+            y1=event.getY();
+            x2=event.getX();
+            y2=event.getY();
+            
+            //calcolo distanza fra i due punti
+            risy= Math.abs(y1-y2);
+			risx= Math.abs(x1-x2);
+			dist= Math.sqrt((Math.pow(risx, 2)+Math.pow(risy, 2)));
+			
+			//animation timer per calcolo e disegno traiettoria..
+			//da implementare un thread da dedicare al calcolo della traiettoria
+            animationTimer2 = new AnimationTimer() {
+	            @Override
+	            public void handle(long currentTime) {
+	            	
+	            	if (wasMousePrimaryDown) {
+	            		//disegno cerchio temporaneo al posto della particella
+	                	drawCircle(x1,y1,10);
+	            	}
+	    			//se la distanza >5 (rilevante) calcolo la traiettoria
+	    			if(dist>5) {
+	    				
+		                if (wasMousePrimaryDown) {
+		                	world.trajectoryPreview(x1, y1, x2, y2, g2d);
+		                }else {
+		                	this.stop();
+		                }
+	    			}
+	            }
+	        };
+	        animationTimer2.start();
     	}
     }
+    
+    private void handleMouseDragged(MouseEvent event) {
+    	if (wasMousePrimaryDown) {
+    		//posizione corrente del mouse (mentre rimane premuto)
+	    	x2=event.getX();
+	        y2=event.getY();
+	        
+	        //calcolo distanza fra i due punti
+            risy= Math.abs(y1-y2);
+			risx= Math.abs(x1-x2);
+			dist= Math.sqrt((Math.pow(risx, 2)+Math.pow(risy, 2)));
+    	}
+    }
+	
+	private void handleMouseReleased(MouseEvent e) {
+    	if (wasMousePrimaryDown&& e.getButton()==MouseButton.PRIMARY ) {
+    		wasMousePrimaryDown=false;
+    		
+	    	//punto finale(mouse released)
+		    x2=e.getX();
+		    y2=e.getY();
+
+		    //spawno la particella prendendo ismovable dal controlpanel 
+		    world.addP(x1, y1,SimulationControls.isMovable);
+		   
+			//se la distanza è maggiore di 5, (se la distanza è abbastanza rilevante) allora dò la spinta iniziale
+		    if(dist>5) {
+		    	world.calcInitForce(x1, y1, x2, y2);
+		    }
+    	}
+	}
+	
 }
 
 

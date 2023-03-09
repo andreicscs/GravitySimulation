@@ -5,17 +5,18 @@ import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Slider;
-import particle_gravity_simulation.objects.SimulationWorld;
 
 public class SimulationControls implements Initializable{
 	@FXML
 	private ChoiceBox<String> isPositive;
-	private String[] choices= {"positive","neutral","negative"};
+	ObservableList<String> choices = FXCollections.observableArrayList("Positive","Neutral","Negative");
 	
 	@FXML
 	private Slider forceGsl;
@@ -33,7 +34,6 @@ public class SimulationControls implements Initializable{
 	
 	
 	public void btIsMovable(ActionEvent event) {
-		System.out.println("oke");
        	if(isMovable){
        		isMovable = false;
        	}else {
@@ -59,16 +59,16 @@ public class SimulationControls implements Initializable{
     }
 	
 	public void btClear(ActionEvent event) {
-		SimulationWorld.clear();
+		SimulationPanel.world.clear();
     }
 
 
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		isPositive.getItems().addAll(choices);
+		isPositive.setValue("Positive");
+		isPositive.setItems(choices);
 		isPositive.setOnAction(this::getIsPositiveChoice);
-		
 		forceGsl.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -91,9 +91,9 @@ public class SimulationControls implements Initializable{
 	
 	public void getIsPositiveChoice(ActionEvent event) {
         String selectedItem = isPositive.getSelectionModel().getSelectedItem();
-        if (selectedItem.equals("positive")) {
+        if (selectedItem.equals("Positive")) {
             isPositiveSelected = 1;
-        } else if (selectedItem.equals("neutral")) {
+        } else if (selectedItem.equals("Neutral")) {
             isPositiveSelected = 0;
         } else {
             isPositiveSelected = -1;
@@ -101,93 +101,3 @@ public class SimulationControls implements Initializable{
     }
 	
 }
-	
-	/*
-		// G slider
-        gSlider = 15;
-
-		ForceGsl.valueProperty().addListener(new ChangeListener<Number>() {
-	            @Override
-	            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-	                gSlider = newValue.intValue();
-	            }
-	        });
-		
-		
-
-		
-
-		
-		
-		// is positive combobox
-		isPositiveSelected = -1;
-
-		ispositive.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                String selectedItem = ispositive.getSelectionModel().getSelectedItem();
-                if (selectedItem.equals("positive")) {
-                    isPositiveSelected = 1;
-                } else if (selectedItem.equals("neutral")) {
-                    isPositiveSelected = 0;
-                } else {
-                    isPositiveSelected = -1;
-                }
-            }
-        });
-		
-		
-		
-		// mass slider
-		Masssl=15;
-		masssl.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-            	Masssl = newValue.intValue();
-            }
-        });
-	
-		
-		
-		//btIsMovable toggle button 
-		btIsMovable.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent event) {
-	        	isMovable = btIsMovable.isSelected();
-	        }
-	    });
-		
-		
-		
-		//btIsTrailOn toggle button
-		isTrailOn=true;
-		btIsTrailOn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-            	isTrailOn = !btIsTrailOn.isSelected();
-            }
-        });
-		
-		
-		//btIsCollisionOn toggle button
-		isCollisionOn=true;
-		btIsCollisionOn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-            	isCollisionOn = !btIsCollisionOn.isSelected();
-            }
-        });
-		
-		
-		// clear button
-		clear.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent event) {
-	        	SimulationWorld.clear();
-	        }
-	    });
-		
-	}
-
-	*/
-
