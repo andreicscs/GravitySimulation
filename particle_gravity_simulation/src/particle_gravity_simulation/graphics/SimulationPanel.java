@@ -40,6 +40,11 @@ public class SimulationPanel extends StackPane {
     Thread thread1;
     private AnimationTimer animationTimer2;
     
+    public static final Semaphore synchronizationSemaphoreCalculating = new Semaphore(1);
+    public static final Semaphore synchronizationSemaphoreDrawing = new Semaphore(0);
+   
+    
+    
     public SimulationPanel() throws IOException {
         canvas = new Canvas();
         getChildren().add(canvas);
@@ -49,25 +54,24 @@ public class SimulationPanel extends StackPane {
         canvas.setOnMouseDragged(this::handleMouseDragged);
         canvas.setOnMousePressed(this::handleMousePressed);
         canvas.setOnMouseReleased(this::handleMouseReleased);
-
+        
         
         //Calculating Loop
         thread1 = new Thread(new Runnable() {
 	            @Override
 				public void run() {
 	            	while (start) {
-	                	width=getWidth();
+	            		width=getWidth();
 	                	height=getHeight();
-
-	                    long startTime = System.currentTimeMillis();
-	                    updateWorld();
-	                    
-	                    long lastTime = System.currentTimeMillis();
-	                    long elapsedTime = lastTime - startTime;
-	                    //se l'update e il rendering ci ha messo troppo poco tempo, aspetta il tempo rimanente per avere 60fps (FPS)
-	                    if (elapsedTime < TARGET_TIME) {
-	                        long sleepTime = (TARGET_TIME - elapsedTime) / 1000000; // convert in milliseconds
-	                        sleep(sleepTime);
+	                	
+	                	try {
+	                		synchronizationSemaphoreCalculating.acquire();
+	                    	updateWorld();
+	                	} catch (InterruptedException e) {
+	                		System.out.println(e);
+	                		e.printStackTrace();
+	                	}finally {
+	                		synchronizationSemaphoreDrawing.release();
 	                    }
 	                }
 	            }
@@ -80,18 +84,23 @@ public class SimulationPanel extends StackPane {
             @Override
             public void handle(long currentTime) {
                 if (start) {
-
-
                     long startTime = System.currentTimeMillis();
-                    drawBackground();
-                    drawGame();
-                    
-                    long lastTime = System.currentTimeMillis();
-                    long elapsedTime = lastTime - startTime;
-                    //se l'update e il rendering ci ha messo troppo poco tempo, aspetta il tempo rimanente per avere 60fps (FPS)
-                    if (elapsedTime < TARGET_TIME) {
-                        long sleepTime = (TARGET_TIME - elapsedTime) / 1000000; // convert in milliseconds
-                        sleep(sleepTime);
+                    try {
+                    	synchronizationSemaphoreDrawing.acquire();
+                    	drawBackground();
+                        drawGame();
+                        long lastTime = System.currentTimeMillis();
+                        long elapsedTime = lastTime - startTime;
+                        //se l'update e il rendering ci ha messo troppo poco tempo, aspetta il tempo rimanente per avere 60fps (FPS)
+                        if (elapsedTime < TARGET_TIME) {
+                            long sleepTime = (TARGET_TIME - elapsedTime) / 1000000; // convert in milliseconds
+                            sleep(sleepTime);
+                        }
+                	} catch (InterruptedException e) {
+                		System.out.println(e);
+                		e.printStackTrace();
+                	}finally {
+                		synchronizationSemaphoreCalculating.release();
                     }
                 }
             }

@@ -114,8 +114,6 @@ public class Particle implements WorldObject{
 			this.edge((int)SimulationPanel.width,(int)SimulationPanel.height); // controllo se tocca un bordo dello schermo
 			
 			//scia
-			
-			
 			try {
 				trailSemaphore.acquire();
 				if(SimulationControls.isTrailOn) {
@@ -134,7 +132,7 @@ public class Particle implements WorldObject{
 					//che darebbe IndexOutofBounds se l'array fosse vuoto
 					this.trail.add(new AVector(this.getPosition().getX(),this.getPosition().getY()));
 				}
-			} catch (InterruptedException e) {
+				} catch (InterruptedException e) {
 				System.out.println(e);
 				e.printStackTrace();
 			}finally {

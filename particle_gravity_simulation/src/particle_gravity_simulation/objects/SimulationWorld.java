@@ -22,12 +22,11 @@ public class SimulationWorld {
 	
 	public void update() {
     	for (int i = 0; i < WorldObjects.size(); i++) {
-    		for (int j = i; j < WorldObjects.size(); j++) {//sarebbe meglio partire da i+1, non lo faccio perchè altrimenti non verrebbe calcolata la forza iniziale della prima particella, quindi faccio un if per compensare
+    		for (int j = 0; j < WorldObjects.size(); j++) {
     			if(WorldObjects.get(i)!=WorldObjects.get(j)) {
 	    			
     				//per ogni coppia di worldobjects calcolo la gravità e la applico
     				AVector f=Force.GravityV(WorldObjects.get(i), WorldObjects.get(j));
-					WorldObjects.get(i).update(AVector.neg(f));
 					WorldObjects.get(j).update(f);
 					
 					
@@ -74,8 +73,19 @@ public class SimulationWorld {
 
 	
 	public void clear() {
-		//da rendere threadsafe
-		WorldObjects.clear();
+		//semaforo aggiunto per rendere l'operazione thread safe, sarebbe meglio aggiungere un semaforo dedicato per le modifiche della lista di worldobjects. soluzione temporanea!
+		try {
+			SimulationPanel.synchronizationSemaphoreDrawing.acquire();
+			WorldObjects.clear();
+    	} catch (InterruptedException e) {
+    		System.out.println(e);
+    		e.printStackTrace();
+    	}finally {
+    		SimulationPanel.synchronizationSemaphoreDrawing.release();
+        }
+		
+		
+		
 	}
 	
 
@@ -153,7 +163,7 @@ public class SimulationWorld {
 		
 		int last=worldCopy.WorldObjects.size()-1;
 		
-		//100 iterazioni nel "futuro"
+		//50 iterazioni nel "futuro"
 		for(int k=50;k>0;k--) {
 			//calcolo tutte le forze del mondo, ma le applico solamente all'ultima particella (quella da simulare) del mondo copiato.
     		for (int j = 0; j < worldCopy.WorldObjects.size(); j++) {
@@ -192,7 +202,7 @@ public class SimulationWorld {
     				worldCopy.WorldObjects.get(last).update(new AVector());
     			}
 			}
-    		//size per la grandezza dei cerchi del trajectory prevuew disegnati sul canvas
+    		//size per la grandezza dei cerchi del trajectory preview disegnati sul canvas
     		int size=k/worldCopy.WorldObjects.get(last).getR()*2;
 			if(size>(worldCopy.WorldObjects.get(last).getR())) {
 				size=(worldCopy.WorldObjects.get(last).getR());

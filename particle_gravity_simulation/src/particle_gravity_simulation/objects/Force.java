@@ -7,14 +7,16 @@ public class Force {
     
     
     public static AVector GravityV(WorldObject a, WorldObject b) {
-        double f = GravityM(a, b);
+    	if (a.getIsPositive() == 0 && b.getIsPositive() == 0) {
+            return new AVector();
+        }
+    	
+    	double f = GravityM(a, b);
         double alfa = a.getPosition().points(b.getPosition());
         AVector gravity = new AVector();
         gravity.set(alfa, f);
         
-        if (a.getIsPositive() == 0 && b.getIsPositive() == 0) {
-            return new AVector();
-        }else if (a.getIsPositive() == b.getIsPositive()) {
+        if (a.getIsPositive() == b.getIsPositive()) {
             return AVector.neg(gravity);
         }
         
