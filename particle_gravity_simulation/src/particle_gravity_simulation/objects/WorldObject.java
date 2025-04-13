@@ -17,5 +17,5 @@ public interface WorldObject {
 	void draw(GraphicsContext g2d);
 	void drawTrail(GraphicsContext g);
 	int getR();
-	WorldObject clone();
+	WorldObject cloneWO() ;
 }

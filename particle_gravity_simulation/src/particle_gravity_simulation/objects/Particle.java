@@ -240,7 +240,7 @@ public class Particle implements WorldObject{
 	
 
 	@Override
-	public Particle clone() {
+	public Particle cloneWO() {
 	    Particle cloned = new Particle();
 	    cloned.setPosition(this.getPosition().clone());
 	    cloned.setMass(this.getMass());

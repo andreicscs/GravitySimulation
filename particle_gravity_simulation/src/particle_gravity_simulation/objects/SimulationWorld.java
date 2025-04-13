@@ -142,7 +142,7 @@ public class SimulationWorld {
 		
 		//copio ogni particella del mondo originale
 		for(int i=0;i<this.WorldObjects.size();i++) {
-			worldCopy.WorldObjects.add(this.WorldObjects.get(i).clone());
+			worldCopy.WorldObjects.add(this.WorldObjects.get(i).cloneWO());
 		}
 
 		//aggiungo una particella movable (per simulare la traiettoria)

@@ -113,7 +113,7 @@ public class SimulationPanel extends StackPane {
         Parent controls = loader.load();
         
         //stile bottone apertura/chiusura menu
-        Button hamburgerButton = new Button("ⓧ");
+        Button hamburgerButton = new Button("✕");
         hamburgerButton.setStyle("-fx-background-color : rgba(100, 100, 100,0.2);\r\n"
                 + "	-fx-background-radius: 20px; -fx-text-fill:white; -fx-font-size: 20pt; -fx-cursor: hand;");
         //hamburgerButton.setMaxWidth(60);
@@ -139,7 +139,7 @@ public class SimulationPanel extends StackPane {
                 transition.setToX(0);
                 transition.play();
 
-                hamburgerButton.setText("ⓧ");
+                hamburgerButton.setText("✕");
                 isMenuOpen = true;
             }
         });

@@ -1,84 +1,139 @@
-.SimulationControls{
-	-fx-background-radius: 40px; 
-	-fx-background-color: rgba(200, 200, 200,0.5);
+.root {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.ToggleButton{
-	-fx-background-color : rgba(0, 0, 0);
-	-fx-background-radius: 40px;
-}
-.ToggleButton:hover{
-	-fx-background-color : rgba(70, 70, 70);
-}
-.ToggleButton:selected{
-	-fx-background-color : rgba(50, 50, 50);
+.simulation-pane {
+    -fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e);
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.1, 0, 2);
+    -fx-padding: 20;
 }
 
-#ClearButton{
-	-fx-background-color : rgba(100, 0, 0);
-	-fx-background-radius: 20px;
+.title-label {
+    -fx-text-fill: #ecf0f1;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
 }
 
-#ClearButton:hover{
-	-fx-background-color : rgba(120, 0, 0);
+.section-label {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-underline: true;
+    -fx-padding: 0 0 10 0;
 }
 
-
-
-.slider .thumb{
-	-fx-background-color : rgba(255, 255, 255);
-	
+.slider-end-label {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 11px;
 }
 
-.slider .track{
-	-fx-background-color : rgba(0, 0, 0);
+.custom-slider {
+    -fx-pref-width: 250px;
+    -fx-padding: 5 0 0 0;
 }
 
-.slider:hover .thumb{
-	-fx-scale-x: 1.2;
-	-fx-scale-y: 1.2;
+.custom-slider .track {
+    -fx-background-color: #34495e;
+    -fx-background-radius: 5;
+    -fx-pref-height: 6;
 }
 
-.slider:hover .track{
-	-fx-background-color : rgba(70, 70, 70);
+.custom-slider .thumb {
+    -fx-background-color: #3498db;
+    -fx-background-radius: 10;
+    -fx-pref-height: 15;
+    -fx-pref-width: 15;
 }
 
-
-
-
-.choice-box .context-menu { 
-	-fx-background-color: black;
-	-fx-background-radius: 10px; 
-	
+.custom-slider .thumb:hover {
+    -fx-background-color: #2980b9;
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
 }
 
-.choice-box .menu-item:focused { 
-	-fx-background-color: rgba(50, 50, 50);
-	-fx-background-radius: 40px; 
-	
+.custom-toggle {
+    -fx-background-color: #34495e;
+    -fx-background-radius: 20;
+    -fx-text-fill: #ecf0f1;
+    -fx-font-weight: bold;
+    -fx-pref-width: 200;
+    -fx-pref-height: 35;
+    -fx-cursor: hand;
+    -fx-margin: 0 0 10 0;
 }
 
-.choice-box .menu-item > .label { 
-	-fx-text-fill: white;
-	
+.custom-toggle:selected {
+    -fx-background-color: #3498db;
 }
 
-.choice-box .menu-item:focused > .label { 
-	-fx-text-fill: white
-	
+.custom-toggle:hover {
+    -fx-background-color: #3d566e;
 }
 
-
-.choice-box {
-	-fx-background-radius: 40px; 
-  	-fx-background-color: black;
- 	-fx-mark-color: rgba(255, 255, 255);
- 	
- 	
-}
-.choice-box > .label { 
-	-fx-text-fill: white;
-	-fx-alignment: center;
-	
+.custom-toggle:selected:hover {
+    -fx-background-color: #2980b9;
 }
 
+.custom-choicebox {
+    -fx-background-color: #34495e;
+    -fx-background-radius: 20;
+    -fx-mark-color: #ecf0f1;
+    -fx-pref-width: 200;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-margin: 0 0 20 0;
+}
+
+.custom-choicebox .label {
+    -fx-text-fill: #ffffff !important;
+    -fx-opacity: 1;
+}
+
+.custom-choicebox .context-menu {
+    -fx-background-color: #2c3e50;
+    -fx-background-radius: 10;
+    -fx-padding: 5;
+}
+
+.custom-choicebox .menu-item {
+    -fx-padding: 5 15 5 15;
+}
+
+.custom-choicebox .menu-item:focused {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.custom-choicebox .menu-item .label {
+    -fx-text-fill: #ecf0f1;
+    -fx-font-size: 12px;
+}
+
+.clear-button {
+    -fx-background-color: #e74c3c;
+    -fx-background-radius: 20;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-pref-width: 180;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-margin: 30 0 0 0;
+}
+
+.clear-button:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* Section spacing */
+.simulation-pane > VBox > VBox {
+    -fx-padding: 0 0 30 0;
+}
+
+.simulation-pane > VBox > VBox:last-child {
+    -fx-padding: 0;
+}

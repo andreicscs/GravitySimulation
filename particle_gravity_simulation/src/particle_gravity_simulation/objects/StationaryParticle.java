@@ -55,7 +55,6 @@ public class StationaryParticle implements WorldObject{
 	//si potrebbe mettere dentro un collision detection se venisse implementato
 	@Override
 	public void update(AVector force) {
-		// TODO Auto-generated method stub
 		
 	}
 	
@@ -79,13 +78,20 @@ public class StationaryParticle implements WorldObject{
 	}
 	@Override
 	public AVector getVelocity() {
-		// TODO Auto-generated method stub
 		return new AVector();
 	}
 	@Override
 	public void setVelocity(AVector velocity) {
-		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public void drawTrail(GraphicsContext g) {
+		
+	}
+	@Override
+	public WorldObject cloneWO() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	
