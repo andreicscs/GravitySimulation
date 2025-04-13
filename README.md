@@ -65,7 +65,7 @@ A Java + JavaFX simulation of **gravitational interactions** between positive, n
 
 **Option 1: Clone Repository**
 ```bash
-git clone https://github.com/your-repo/GravitySimulation.git
+git clone https://github.com/andreicscs/GravitySimulation.git
 ```
 Then in Eclipse:
 
