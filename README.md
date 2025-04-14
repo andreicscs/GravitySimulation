@@ -71,13 +71,13 @@ Then in Eclipse:
 
 File → Import → Existing Projects into Workspace → Select root directory → Browse to the cloned folder
 
-
+---
 
 **Option 2: Download Project Folder**
 
 File → Import → Existing Projects into Workspace → Select root directory → Browse to the downloaded folder
 
-#### Add JavaFX Libraries:
+### Add JavaFX Libraries:
 Right-click project → Build Path → Configure Build Path → Add External JARs (from JavaFX lib folder)
 
 #### VM Arguments (Run Configurations):
