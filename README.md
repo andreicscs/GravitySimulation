@@ -112,9 +112,9 @@ Right-click project → Build Path → Configure Build Path → Add External JAR
 ## 🧱 Technical Architecture
 
 ### 🧵 Thread Management
-- **Physics Thread:** Discrete time-step calculations
-- **Render Thread:** VSync-aligned 60 FPS rendering
-- **Semaphore-controlled** shared resource access
+- **Physics Thread:** Fixed time-step calculations
+- **Render Thread:** JavaFX thread used for drawing
+- **Semaphore-controlled** Alternates between rendering and calculating for an accurate simulation
 
 ## 🖼️ UI Framework
 JavaFX Canvas for rendering
