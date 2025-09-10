@@ -106,6 +106,7 @@ Right-click project → Build Path → Configure Build Path → Add External JAR
 | Clear Button     | Reset simulation state                       |
 
 <img width="320" height="661" alt="gravityPanel" src="https://github.com/user-attachments/assets/28ac603d-f35c-4245-a191-cd0e56244f85" />
+
 ---
 
 ## 🧱 Technical Architecture
