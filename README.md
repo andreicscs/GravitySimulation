@@ -2,7 +2,7 @@
 
 A Java + JavaFX simulation of **gravitational interactions** between positive, negative, and neutral particles in real-time 2D space.
 
-![20250413-1357-26 2480211-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/9d99b147-9bea-474d-9a83-473d5acd2320)
+![gravityDemo](https://github.com/user-attachments/assets/273db425-f6d4-42eb-b70e-fd78a6288ed2)
 
 ---
 
@@ -105,15 +105,16 @@ Right-click project → Build Path → Configure Build Path → Add External JAR
 | Collisions Toggle| Enable/Disable collision physics             |
 | Clear Button     | Reset simulation state                       |
 
-![image](https://github.com/user-attachments/assets/346bbcc7-e768-4843-9b89-6565b38e2848)
+<img width="320" height="661" alt="gravityPanel" src="https://github.com/user-attachments/assets/28ac603d-f35c-4245-a191-cd0e56244f85" />
+
 ---
 
 ## 🧱 Technical Architecture
 
 ### 🧵 Thread Management
-- **Physics Thread:** Discrete time-step calculations
-- **Render Thread:** VSync-aligned 60 FPS rendering
-- **Semaphore-controlled** shared resource access
+- **Physics Thread:** Fixed time-step calculations
+- **Render Thread:** JavaFX thread used for drawing
+- **Semaphore-controlled** Alternates between rendering and calculating for an accurate simulation
 
 ## 🖼️ UI Framework
 JavaFX Canvas for rendering
