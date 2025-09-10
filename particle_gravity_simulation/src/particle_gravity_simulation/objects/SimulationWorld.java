@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import javafx.scene.canvas.GraphicsContext;
-
+import javafx.scene.paint.Color;
 import a.geometry.AVector;
-
 import particle_gravity_simulation.graphics.SimulationControls;
-import particle_gravity_simulation.graphics.SimulationPanel;
 
 
 public class SimulationWorld {
@@ -20,14 +17,14 @@ public class SimulationWorld {
 		WorldObjects = Collections.synchronizedList(new ArrayList<WorldObject>());//thread safe array
 	}
 	
-	public void update() {
+	public void update(double dt) {
     	for (int i = 0; i < WorldObjects.size(); i++) {
     		for (int j = 0; j < WorldObjects.size(); j++) {
     			if(WorldObjects.get(i)!=WorldObjects.get(j)) {
 	    			
     				//per ogni coppia di worldobjects calcolo la gravità e la applico
     				AVector f=Force.GravityV(WorldObjects.get(i), WorldObjects.get(j));
-					WorldObjects.get(j).update(f);
+					WorldObjects.get(j).update(f, dt);
 					
 					
 					//controllo collisioni
@@ -63,39 +60,23 @@ public class SimulationWorld {
 			        }
 			        
     			}else {
-    				WorldObjects.get(i).update(new AVector());
+    				WorldObjects.get(i).update(new AVector(), dt);
     			}
 			}
 		}
 	}
 	
-	
-
-	
 	public void clear() {
-		//semaforo aggiunto per rendere l'operazione thread safe, sarebbe meglio aggiungere un semaforo dedicato per le modifiche della lista di worldobjects. soluzione temporanea!
-		try {
-			SimulationPanel.synchronizationSemaphoreDrawing.acquire();
 			WorldObjects.clear();
-    	} catch (InterruptedException e) {
-    		System.out.println(e);
-    		e.printStackTrace();
-    	}finally {
-    		SimulationPanel.synchronizationSemaphoreDrawing.release();
-        }
-		
-		
-		
 	}
 	
-
 	//disegna tutti i world objects sulla buffered image.
-	public void draw() {
+	public void draw(GraphicsContext g) {
 		Iterator<WorldObject> it = WorldObjects.iterator();
 		//thread safe loop
 		while(it.hasNext()) {
 			WorldObject cur = it.next();
-			SimulationPanel.draw(cur);
+			cur.draw(g);
 		}
 	}
 	
@@ -112,7 +93,7 @@ public class SimulationWorld {
 	
 	
 	//calcolo e applicazione della spinta iniziale della particella
-	public void calcInitForce(double x1, double y1,double x2, double y2) {
+	public void calcInitForce(double x1, double y1,double x2, double y2, double dt) {
 		int forceDamping=5;
 		
 		//calcolo l'angolo della forza
@@ -125,19 +106,10 @@ public class SimulationWorld {
 		AVector initForce=new AVector();
 		initForce.set(alfa, mag);
 		//e lo applico all'ultima particella, l'ultima appena creata
-		WorldObjects.get(WorldObjects.size() - 1).update(initForce);;
+		WorldObjects.get(WorldObjects.size() - 1).update(initForce, dt);;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	public void trajectoryPreview(double  x1, double  y1, double  x2, double y2,GraphicsContext g2d) {
+	public void trajectoryPreview(double  x1, double  y1, double  x2, double y2, GraphicsContext g2d, double dt) {
 		SimulationWorld worldCopy = new SimulationWorld();
 		
 		//copio ogni particella del mondo originale
@@ -155,12 +127,9 @@ public class SimulationWorld {
 		
 		//se la distanza è maggiore di 5, (se la distanza è abbastanza rilevante) allora dò la spinta iniziale
 	    if(dist>5) {
-	    	worldCopy.calcInitForce(x1, y1, x2, y2);
+	    	worldCopy.calcInitForce(x1, y1, x2, y2, dt);
 	    }
 
-		
-		
-		
 		int last=worldCopy.WorldObjects.size()-1;
 		
 		//50 iterazioni nel "futuro"
@@ -169,7 +138,7 @@ public class SimulationWorld {
     		for (int j = 0; j < worldCopy.WorldObjects.size(); j++) {
     			if(worldCopy.WorldObjects.get(last)!=worldCopy.WorldObjects.get(j)) {
     				AVector f=Force.GravityV(worldCopy.WorldObjects.get(last), WorldObjects.get(j));
-        			worldCopy.WorldObjects.get(last).update(AVector.neg(f));
+        			worldCopy.WorldObjects.get(last).update(AVector.neg(f), dt);
     				
         			// controllo collisioni
     				if(SimulationControls.isCollisionOn) {
@@ -199,17 +168,25 @@ public class SimulationWorld {
     					}
     		        }
     			}else {
-    				worldCopy.WorldObjects.get(last).update(new AVector());
+    				worldCopy.WorldObjects.get(last).update(new AVector(), dt);
     			}
 			}
-    		//size per la grandezza dei cerchi del trajectory preview disegnati sul canvas
-    		int size=k/worldCopy.WorldObjects.get(last).getR()*2;
-			if(size>(worldCopy.WorldObjects.get(last).getR())) {
-				size=(worldCopy.WorldObjects.get(last).getR());
-			}
-			
-			//disegno un cerchio sul canvas, con posizione della particella simulata, e grandezza size
-			SimulationPanel.drawCircle( worldCopy.WorldObjects.get(last).getPosition().getX(), worldCopy.WorldObjects.get(last).getPosition().getY(), size);
+    		
+    		// calcolo la grandezza del cerchio con un fade progressivo
+    		double maxRadius = worldCopy.WorldObjects.get(last).getR(); // raggio massimo
+    		double t = (double) k / 50.0; // numero totale di iterazioni nel futuro
+    		double size = maxRadius * (0.5 + 0.5 * t); // cerchi più piccoli all’inizio, più grandi alla fine
+
+    		// calcolo l’alpha per l'opacità
+    		double alpha = 0.2 + 0.8 * t; // fade da 0.2 a 1.0
+    		Color trajColor = Color.rgb(200, 200, 200, alpha);
+
+    		// disegno il cerchio centrato sulla particella
+    		g2d.setFill(trajColor);
+    		double x = worldCopy.WorldObjects.get(last).getPosition().getX() + maxRadius - size / 2;
+    		double y = worldCopy.WorldObjects.get(last).getPosition().getY() + maxRadius - size / 2;
+    		g2d.fillOval(x, y, size, size);
+    		
 		}
 	}
 }

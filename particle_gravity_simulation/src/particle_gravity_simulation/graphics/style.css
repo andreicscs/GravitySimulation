@@ -1,137 +1,146 @@
 .root {
-    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-font-family: "San Francisco", "Helvetica Neue", Arial, sans-serif;
 }
 
 .simulation-pane {
-    -fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e);
+    -fx-background-color: linear-gradient(to bottom, #1e1e1e, #2c2c2c);
     -fx-background-radius: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.1, 0, 2);
-    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.1, 0, 2);
+    -fx-padding: 25;
 }
 
 .title-label {
-    -fx-text-fill: #ecf0f1;
+    -fx-text-fill: #f2f2f7;
     -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 0 20 0;
+    -fx-font-weight: 600;
+    -fx-padding: 0 0 25 0;
 }
 
 .section-label {
-    -fx-text-fill: #bdc3c7;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
+    -fx-text-fill: #a0a0a0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
     -fx-underline: true;
     -fx-padding: 0 0 10 0;
 }
 
+.content-label {
+    -fx-text-fill: #b0b0b0;
+    -fx-font-size: 11px;
+}
+
 .slider-end-label {
-    -fx-text-fill: #95a5a6;
+    -fx-text-fill: #888888;
     -fx-font-size: 11px;
 }
 
 .custom-slider {
-    -fx-pref-width: 250px;
+    -fx-pref-width: 240px;
     -fx-padding: 5 0 0 0;
 }
 
 .custom-slider .track {
-    -fx-background-color: #34495e;
-    -fx-background-radius: 5;
+    -fx-background-color: #3a3a3c;
+    -fx-background-radius: 3;
     -fx-pref-height: 6;
 }
 
 .custom-slider .thumb {
-    -fx-background-color: #3498db;
-    -fx-background-radius: 10;
+    -fx-background-color: #0a84ff;
+    -fx-background-radius: 8;
     -fx-pref-height: 15;
     -fx-pref-width: 15;
 }
 
 .custom-slider .thumb:hover {
-    -fx-background-color: #2980b9;
+    -fx-background-color: #0066cc;
     -fx-scale-x: 1.2;
     -fx-scale-y: 1.2;
 }
 
 .custom-toggle {
-    -fx-background-color: #34495e;
+    -fx-background-color: #AAAA;
     -fx-background-radius: 20;
-    -fx-text-fill: #ecf0f1;
-    -fx-font-weight: bold;
+    -fx-text-fill: #f2f2f7;
+    -fx-font-weight: 500;
     -fx-pref-width: 200;
     -fx-pref-height: 35;
     -fx-cursor: hand;
-    -fx-margin: 0 0 10 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 3, 0.1, 0, 1);
 }
 
 .custom-toggle:selected {
-    -fx-background-color: #3498db;
+    -fx-background-color: #0a84ff;
+    -fx-text-fill: white;
 }
 
 .custom-toggle:hover {
-    -fx-background-color: #3d566e;
+    -fx-background-color: #0066cc;
 }
 
 .custom-toggle:selected:hover {
-    -fx-background-color: #2980b9;
+    -fx-background-color: #0066cc;
 }
 
 .custom-choicebox {
-    -fx-background-color: #34495e;
-    -fx-background-radius: 20;
-    -fx-mark-color: #ecf0f1;
+    -fx-background-color: #2c2c2e;
+    -fx-background-radius: 10;
+    -fx-mark-color: #0a84ff;
     -fx-pref-width: 200;
-    -fx-text-fill: #ffffff;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
+    -fx-text-fill: #f2f2f7;
+    -fx-font-weight: 500;
     -fx-font-size: 13px;
-    -fx-margin: 0 0 20 0;
+    -fx-cursor: hand;
 }
 
 .custom-choicebox .label {
-    -fx-text-fill: #ffffff !important;
+    -fx-text-fill: #f2f2f7 !important;
     -fx-opacity: 1;
 }
 
 .custom-choicebox .context-menu {
-    -fx-background-color: #2c3e50;
-    -fx-background-radius: 10;
+    -fx-background-color: #1e1e1e;
+    -fx-background-radius: 8;
     -fx-padding: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 4, 0.1, 0, 2);
 }
 
 .custom-choicebox .menu-item {
-    -fx-padding: 5 15 5 15;
+    -fx-padding: 6 15 6 15;
 }
 
 .custom-choicebox .menu-item:focused {
-    -fx-background-color: #3498db;
+    -fx-background-color: #0a84ff;
     -fx-text-fill: white;
 }
 
 .custom-choicebox .menu-item .label {
-    -fx-text-fill: #ecf0f1;
+    -fx-text-fill: #f2f2f7;
     -fx-font-size: 12px;
 }
 
 .clear-button {
-    -fx-background-color: #e74c3c;
+    -fx-background-color: #FF6961;
     -fx-background-radius: 20;
     -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-font-weight: 600;
     -fx-pref-width: 180;
     -fx-pref-height: 40;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
-    -fx-margin: 30 0 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 4, 0.1, 0, 2);
 }
 
 .clear-button:hover {
-    -fx-background-color: #c0392b;
+    -fx-background-color: #e04f4f;
 }
 
-/* Section spacing */
+.simulation-pane > VBox {
+    -fx-spacing: 25;
+}
+
 .simulation-pane > VBox > VBox {
-    -fx-padding: 0 0 30 0;
+    -fx-spacing: 15;
+    -fx-padding: 0 0 20 0;
 }
 
 .simulation-pane > VBox > VBox:last-child {

@@ -13,7 +13,7 @@ public interface WorldObject {
 	AVector getVelocity();
 	void setVelocity(AVector velocity);
 	void setPosition(AVector position);
-	void update(AVector force);
+	void update(AVector force, double dt);
 	void draw(GraphicsContext g2d);
 	void drawTrail(GraphicsContext g);
 	int getR();

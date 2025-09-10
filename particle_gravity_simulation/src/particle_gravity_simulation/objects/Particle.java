@@ -2,10 +2,8 @@ package particle_gravity_simulation.objects;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-
 import a.geometry.AVector;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -33,7 +31,7 @@ public class Particle implements WorldObject{
 		this.velocity=new AVector();
 		this.setR(r);
 		trail = Collections.synchronizedList(new ArrayList<AVector>());
-		this.trail.add(new AVector(this.getPosition().getX(),this.getPosition().getY()));
+		this.trail.add(new AVector(this.getPosition().getX() + this.getR(), this.getPosition().getY() + this.getR()));
 	}
 
 	public Particle(){
@@ -42,6 +40,153 @@ public class Particle implements WorldObject{
 	    this.isPositive=0;
 	}
 	
+	
+	//applica la forza passata
+	@Override
+	public void update(AVector force, double dt) {
+		if(isMovable()) {
+			this.edge((int)SimulationPanel.width,(int)SimulationPanel.height); // controllo se tocca un bordo dello schermo
+			
+			//scia
+			try {
+				trailSemaphore.acquire();
+				if(SimulationControls.isTrailOn) {
+					//controllo che il punto precedente e il corrente siano abbastanza distanti
+					//altrimenti si aggiornerebbe ad ogni decimale
+					if((this.trail.get(this.trail.size()-1).distance(this.getPosition())>0.1) ) {
+						this.trail.add(new AVector(this.getPosition().getX(),this.getPosition().getY()));
+					}	
+					if(this.trail.size()>50) {
+						this.trail.remove(0);
+					}
+				}else {
+					this.trail.clear();
+					//una volta cancellata aggiungo il primo elemento, perchè nell'if sopra controllo this.trail.size()-1, 
+					//che darebbe IndexOutofBounds se l'array fosse vuoto
+					this.trail.add(new AVector(this.getPosition().getX(),this.getPosition().getY()));
+				}
+				} catch (InterruptedException e) {
+				System.out.println(e);
+				e.printStackTrace();
+			}finally {
+				trailSemaphore.release();
+		    }
+			
+			//aplico forze
+			
+			this.acceleration.add(AVector.div(force, this.getMass()));//aggiungo la forza divisa per la messa, all'accelerazione
+			this.velocity.add(AVector.mult(this.acceleration, dt));//sommo velocità e accelerazione
+			this.getPosition().add(AVector.mult(this.velocity, dt));//sommo posizione a velocità
+			this.acceleration.mult(0);//resetto accelerazione ogni frame
+		}
+	}
+
+	public void edge(int scrWidth,int scrHeight) {
+		if(isMovable()) {
+			int p =90;
+			if(this.getPosition().getX()<=0) {//se la pallina oltrepassa 0(bordo sinistra)
+				this.velocity.setX((this.velocity.getX()*-1)); // inverto la velocità (cambiano direzione)
+				this.getPosition().setX(0.1); // le palline riescono ad attraversare di poco il muro quindi le sposto per non farle bloccare
+				this.velocity.perc(p);//riduco la velocità el 10%
+			}
+			else if(this.getPosition().getX()>=scrWidth-this.getR()) {
+				this.velocity.setX((this.velocity.getX()*-1));
+				this.getPosition().setX(scrWidth-this.getR());
+				this.velocity.perc(p);
+			}
+			else if(this.getPosition().getY()<=0) {
+				this.velocity.setY((this.velocity.getY()*-1));
+				this.getPosition().setY(0.1);
+				this.velocity.perc(p);
+			}
+			else if(this.getPosition().getY()>=scrHeight-this.getR()) {
+				this.velocity.setY((this.velocity.getY()*-1));
+				this.getPosition().setY(scrHeight-this.getR());
+				this.velocity.perc(p);
+			}
+		}
+	}
+	
+	@Override
+	public void drawTrail(GraphicsContext g) {
+		if(isMovable()) {
+			
+			try {
+				trailSemaphore.acquire();
+				
+				Color baseColor;
+				// colore in base alle impostazioni date
+				if (this.getIsPositive() > 0) baseColor = Color.web("#FF3B30"); // soft red
+				else if (this.getIsPositive() < 0) baseColor = Color.web("#007AFF"); // soft blue
+				else baseColor = Color.web("#8E8E93"); // neutral gray
+
+				//disegno tutte le posizioni salvate in trail creando un effetto scia interpolando tra le posizione per renderla più fluida
+				//nella grandezza dell'ovale, this.getR() * 2 * (1.0 - fade) per rendere l'ovale sempre più piccolo, 
+				//ma non più grande della dimensione della particella
+				for (int i = 0; i < trail.size() - 1; i++) {
+				    AVector p1 = trail.get(i);
+				    AVector p2 = trail.get(i + 1);
+
+				    // linear interpolation to smooth out the trail
+				    for (double t = 0; t <= 1.0; t += 0.25) {
+				    	//LERP formula
+				        double x = p1.getX() * (1 - t) + p2.getX() * t;
+				        double y = p1.getY() * (1 - t) + p2.getY() * t;
+
+				        double fade = (double)(trail.size() - 1 - i) / (trail.size() - 1);
+				        double size = this.getR() * 2 * (1.0 - fade);
+
+				        // applico il fade anche al colore
+				        Color fillColor = Color.color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 1-(1 * fade));
+				        g.setFill(fillColor);
+
+				        // disegno il cerchio centrato
+				        g.fillOval(x, y, size, size);
+				    }
+				}
+			} catch (InterruptedException e) {
+				System.out.println(e);
+				e.printStackTrace();
+			}finally {
+				trailSemaphore.release();
+		    }
+		}
+	}
+	
+	@Override
+	public void draw(GraphicsContext g) {
+		this.drawTrail(g);
+		
+	    double x = this.getPosition().getX();
+	    double y = this.getPosition().getY();
+	    double r = this.getR();
+
+	    Color fillColor;
+	    if (this.getIsPositive() > 0) fillColor = Color.web("#FF3B30"); // soft red
+	    else if (this.getIsPositive() < 0) fillColor = Color.web("#007AFF"); // soft blue
+	    else fillColor = Color.web("#8E8E93"); // neutral gray
+
+	    g.setFill(fillColor);
+	    g.fillOval(x, y, r * 2, r * 2);
+	    
+	    //shadow
+	    g.setStroke(Color.rgb(0, 0, 0, 0.1));
+	    g.fillOval(x, y, r * 2, r * 2);
+	}
+	
+	@Override
+	public Particle cloneWO() {
+	    Particle cloned = new Particle();
+	    cloned.setPosition(this.getPosition().clone());
+	    cloned.setMass(this.getMass());
+	    cloned.setR(this.getR());
+	    cloned.setIsPositive(this.getIsPositive());
+	    cloned.setAcceleration(this.getAcceleration().clone());
+	    cloned.setVelocity(this.getVelocity().clone());
+	    cloned.setTrail(new ArrayList<AVector>());
+	    return cloned;
+	}
+
 	public int getMass() {
 		return mass;
 	}
@@ -105,158 +250,4 @@ public class Particle implements WorldObject{
 	public void setTrail(ArrayList<AVector> trail) {
 		this.trail = trail;
 	}
-	
-	
-	//applica la forza passata
-	@Override
-	public void update(AVector force) {
-		if(isMovable()) {
-			this.edge((int)SimulationPanel.width,(int)SimulationPanel.height); // controllo se tocca un bordo dello schermo
-			
-			//scia
-			try {
-				trailSemaphore.acquire();
-				if(SimulationControls.isTrailOn) {
-					//controllo che il punto precedente e il corrente siano abbastanza distanti
-					//altrimenti si aggiornerebbe ad ogni decimale
-					if((this.trail.get(this.trail.size()-1).distance(this.getPosition())>0.1) ) {
-						this.trail.add(new AVector(this.getPosition().getX(),this.getPosition().getY()));
-					}	
-					if(this.trail.size()>100) {
-						this.trail.remove(0);
-					}
-				}else {
-					//senza questo clear, una volta disattivata e riattivata la trail, riprende dalla posizione precedente.
-					this.trail.clear();
-					//una volta cancellata aggiungo il primo elemento, perchè nell'if sopra controllo this.trail.size()-1, 
-					//che darebbe IndexOutofBounds se l'array fosse vuoto
-					this.trail.add(new AVector(this.getPosition().getX(),this.getPosition().getY()));
-				}
-				} catch (InterruptedException e) {
-				System.out.println(e);
-				e.printStackTrace();
-			}finally {
-				trailSemaphore.release();
-		    }
-			
-			
-			
-			//aplico forze
-			
-			this.acceleration.add(AVector.div(force, this.getMass()));//aggiungo la forza divisa per la messa, all'accelerazione
-			this.velocity.add(this.acceleration);//sommo velocità e accelerazione
-			this.getPosition().add(this.velocity);//sommo posizione a velocità
-			this.acceleration.mult(0);//resetto accelerazione ogni frame
-		}
-	}
-
-	public void edge(int scrWidth,int scrHeight) {
-		if(isMovable()) {
-			int p =90;
-			if(this.getPosition().getX()<=0) {//se la pallina oltrepassa 0(bordo sinistra)
-				this.velocity.setX((this.velocity.getX()*-1)); // inverto la velocità (cambiano direzione)
-				this.getPosition().setX(this.getPosition().getX()+1); // le palline riescono ad attraversare di poco il muro quindi le sposto di 1 per non farle bloccare
-				this.velocity.perc(p);//riduco la velocità el 10%
-			}
-			else if(this.getPosition().getX()>=scrWidth-this.getR()) {
-				this.velocity.setX((this.velocity.getX()*-1));
-				this.getPosition().setX(this.getPosition().getX()-1);
-				this.velocity.perc(p);
-			}
-			else if(this.getPosition().getY()<=0) {
-				this.velocity.setY((this.velocity.getY()*-1));
-				this.getPosition().setY(this.getPosition().getY()+1);
-				this.velocity.perc(p);
-			}
-			else if(this.getPosition().getY()>=scrHeight-this.getR()) {
-				this.velocity.setY((this.velocity.getY()*-1));
-				this.getPosition().setY(this.getPosition().getY()-1);
-				this.velocity.perc(p);
-			}
-		}
-	}
-	
-	@Override
-	public void draw(GraphicsContext g) {
-		
-		//colore in base alle impostazioni date
-		if(this.getIsPositive()>0)
-			g.setFill(Color.RED);
-		else if(this.getIsPositive()<0)
-			g.setFill(Color.BLUE);
-		else
-			g.setFill(Color.GRAY);
-			
-			
-			//riempo ovale con posizioni della particella (le casto in int perchè sono double) e con altezza e larghezza uguali a raggio^2
-			g.fillOval(this.getPosition().getX(), this.getPosition().getY(), this.getR()*2, this.getR()*2);
-	}
-	
-	@Override
-	public void drawTrail(GraphicsContext g) {
-		if(isMovable()) {
-			
-			try {
-				trailSemaphore.acquire();
-				
-				//colore in base alle impostazioni date
-				if(this.getIsPositive()>0)
-					g.setFill(Color.RED);
-				else if(this.getIsPositive()<0)
-					g.setFill(Color.BLUE);
-				else
-					g.setFill(Color.GRAY);
-
-				//disegno tutte le posizioni salvate in trail creando un effetto scia
-				//nella grandezza dell'ovale, i/(this.getR()*2) per rendere l'ovale sempre più piccolo, 
-				//ma non più grande della dimensione della particella
-				double size=(this.getR()*2);
-				int i=0;
-				Iterator<AVector> it = trail.iterator();
-				while(it.hasNext()) {//thread safe loop
-					AVector cur = it.next();
-					if(cur==null) {
-						break;
-					}
-					i++;
-					size=i/(this.getR()*2);
-					if(size>(this.getR()*2)) {
-						size=(this.getR()*2);
-					}
-					g.fillOval(cur.getX(), cur.getY(), size, size);
-				}
-			} catch (InterruptedException e) {
-				System.out.println(e);
-				e.printStackTrace();
-			}finally {
-				trailSemaphore.release();
-		    }
-		}	
-	}
-	
-	
-	
-	
-	
-
-	@Override
-	public Particle cloneWO() {
-	    Particle cloned = new Particle();
-	    cloned.setPosition(this.getPosition().clone());
-	    cloned.setMass(this.getMass());
-	    cloned.setR(this.getR());
-	    cloned.setIsPositive(this.getIsPositive());
-	    cloned.setAcceleration(this.getAcceleration().clone());
-	    cloned.setVelocity(this.getVelocity().clone());
-	    cloned.setTrail(new ArrayList<AVector>());
-	    return cloned;
-	}
-	
-	
-
-
-	
-
-
-	
 }

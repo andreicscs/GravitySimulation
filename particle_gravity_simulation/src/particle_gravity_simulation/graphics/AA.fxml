@@ -7,29 +7,22 @@
 <?import javafx.geometry.Insets?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
-            prefHeight="632.0" prefWidth="320.0" styleClass="simulation-pane" 
+            prefHeight="660.0" prefWidth="320.0" styleClass="simulation-pane" 
             stylesheets="@style.css" xmlns="http://javafx.com/javafx/19" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="particle_gravity_simulation.graphics.SimulationControls">
     
     <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
-        <Label text="Particle Controls" styleClass="title-label"/>
+        <Label text="Controls" styleClass="title-label"/>
         
-        <!-- Gravity Control Section -->
-        <VBox spacing="5" alignment="CENTER">
-            <Label text="GRAVITY CONSTANT" styleClass="section-label"/>
-            <Slider fx:id="forceGsl" min="1.0" max="100.0" value="15.0" styleClass="custom-slider"/>
-            <HBox spacing="10" alignment="CENTER">
-                <Label text="Weak" styleClass="slider-end-label"/>
-                <Label text="Strong" styleClass="slider-end-label"/>
-            </HBox>
-        </VBox>
+        
         
         <!-- Particle Properties Section -->
         <VBox spacing="5" alignment="CENTER">
             <Label text="PARTICLE PROPERTIES" styleClass="section-label"/>
 			<ToggleButton text="Movable" onAction="#btIsMovable" selected="true" styleClass="custom-toggle"/>
             <ChoiceBox fx:id="isPositive" styleClass="custom-choicebox"/>
+            <Label text="PARTICLE MASS" styleClass="content-label"/>
             <Slider fx:id="particleMassSl" min="1.0" max="100.0" value="15.0" styleClass="custom-slider"/>
             <HBox spacing="10" alignment="CENTER">
                 <Label text="Light" styleClass="slider-end-label"/>
@@ -40,6 +33,15 @@
         <!-- Toggle Controls Section -->
         <VBox spacing="15" alignment="CENTER">
             <Label text="SIMULATION OPTIONS" styleClass="section-label"/>
+            <!-- Gravity Control Section -->
+	        <VBox spacing="5" alignment="CENTER">
+	            <Label text="GRAVITY CONSTANT" styleClass="content-label"/>
+	            <Slider fx:id="forceGsl" min="1.0" max="100.0" value="15.0" styleClass="custom-slider"/>
+	            <HBox spacing="10" alignment="CENTER">
+	                <Label text="Weak" styleClass="slider-end-label"/>
+	                <Label text="Strong" styleClass="slider-end-label"/>
+	            </HBox>
+	        </VBox>
             <ToggleButton text="Trail" onAction="#btIsTrailOn" selected="true" styleClass="custom-toggle"/>
             <ToggleButton text="Collisions" onAction="#btIsCollisionOn" selected="true" styleClass="custom-toggle"/>
             <!-- Action Button -->

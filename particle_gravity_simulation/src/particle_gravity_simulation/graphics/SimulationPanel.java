@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.Interpolator;
+import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -18,23 +20,18 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import particle_gravity_simulation.objects.SimulationWorld;
-import particle_gravity_simulation.objects.WorldObject;
 
 public class SimulationPanel extends StackPane {
     private boolean isMenuOpen;
-    //getWidth() , getHeight(), non sono statici..
     static public double width;
     static public double height;
     
     private Canvas canvas;
-    public static final Semaphore graphicsSemaphore = new Semaphore(1,true);
     private static GraphicsContext g2d;
     static public SimulationWorld world;
     
     private boolean wasMousePrimaryDown=false;
     
-    private final int FPS = 60;
-    private final long TARGET_TIME = 1000000000L / FPS;
     private boolean start = true;
     private AnimationTimer animationTimer1;
     Thread thread1;
@@ -42,31 +39,42 @@ public class SimulationPanel extends StackPane {
     
     public static final Semaphore synchronizationSemaphoreCalculating = new Semaphore(1);
     public static final Semaphore synchronizationSemaphoreDrawing = new Semaphore(0);
-   
-    
+    final double FIXED_DT = 1.0 / 60.0; // 60 updates per second
+    final double PHYSICS_DT = FIXED_DT*100;
     
     public SimulationPanel() throws IOException {
         canvas = new Canvas();
         getChildren().add(canvas);
         canvas.widthProperty().bind(widthProperty());
         canvas.heightProperty().bind(heightProperty());
-        
         canvas.setOnMouseDragged(this::handleMouseDragged);
         canvas.setOnMousePressed(this::handleMousePressed);
         canvas.setOnMouseReleased(this::handleMouseReleased);
-        
         
         //Calculating Loop
         thread1 = new Thread(new Runnable() {
 	            @Override
 				public void run() {
+	            	long lastTime = System.nanoTime();
+	                double accumulator = 0.0;
+	                
 	            	while (start) {
 	            		width=getWidth();
 	                	height=getHeight();
 	                	
 	                	try {
 	                		synchronizationSemaphoreCalculating.acquire();
-	                    	updateWorld();
+	                		
+	                		long now = System.nanoTime();
+	                		double frameTime  = (now - lastTime) / 1e9; // seconds
+	                		lastTime = now;
+	                        accumulator += frameTime;
+
+	                        // run multiple fixed updates if needed to mantain fixed simulation speed
+	                        while (accumulator >= FIXED_DT) {
+	                            world.update(PHYSICS_DT);
+	                            accumulator -= FIXED_DT;
+	                        }
 	                	} catch (InterruptedException e) {
 	                		System.out.println(e);
 	                		e.printStackTrace();
@@ -84,18 +92,11 @@ public class SimulationPanel extends StackPane {
             @Override
             public void handle(long currentTime) {
                 if (start) {
-                    long startTime = System.currentTimeMillis();
                     try {
                     	synchronizationSemaphoreDrawing.acquire();
                     	drawBackground();
-                        drawGame();
-                        long lastTime = System.currentTimeMillis();
-                        long elapsedTime = lastTime - startTime;
-                        //se l'update e il rendering ci ha messo troppo poco tempo, aspetta il tempo rimanente per avere 60fps (FPS)
-                        if (elapsedTime < TARGET_TIME) {
-                            long sleepTime = (TARGET_TIME - elapsedTime) / 1000000; // convert in milliseconds
-                            sleep(sleepTime);
-                        }
+                        drawSimulation(g2d);
+                        
                 	} catch (InterruptedException e) {
                 		System.out.println(e);
                 		e.printStackTrace();
@@ -112,111 +113,90 @@ public class SimulationPanel extends StackPane {
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("AA.fxml"));
         Parent controls = loader.load();
         
-        //stile bottone apertura/chiusura menu
         Button hamburgerButton = new Button("✕");
-        hamburgerButton.setStyle("-fx-background-color : rgba(100, 100, 100,0.2);\r\n"
-                + "	-fx-background-radius: 20px; -fx-text-fill:white; -fx-font-size: 20pt; -fx-cursor: hand;");
-        //hamburgerButton.setMaxWidth(60);
-        //hamburgerButton.setMaxHeight(30);
+        hamburgerButton.setStyle(
+            "-fx-background-color: rgba(100, 100, 100,0.2);" +
+            "-fx-background-radius: 20px;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-size: 20pt;" +
+            "-fx-cursor: hand;" +
+            "-fx-alignment: center;"
+        );
+        hamburgerButton.setPrefSize(70, 70);
 
+        
         getChildren().addAll(controls, hamburgerButton);
         setAlignment(Pos.TOP_RIGHT);
         
-        //all'inizio è aperto
         isMenuOpen = true;
-        hamburgerButton.setOnAction(event -> {
-            if (isMenuOpen) {
-                // Chiudi il menu
-                TranslateTransition transition = new TranslateTransition(Duration.millis(200), controls);
-                transition.setToX(400);
-                transition.play();
+        TranslateTransition menuTransition = new TranslateTransition(Duration.millis(250), controls);
+        menuTransition.setInterpolator(Interpolator.EASE_BOTH);
 
-                hamburgerButton.setText("≡");
+        RotateTransition buttonRotate = new RotateTransition(Duration.millis(250), hamburgerButton);
+
+        
+        hamburgerButton.setOnAction(event -> {
+            hamburgerButton.setDisable(true); // prevent double clicks
+
+            if (isMenuOpen) {
+                // close menu
+                menuTransition.setToX(400); 
+                menuTransition.setOnFinished(e -> {
+                    hamburgerButton.setText("|||"); // change text after animation
+                    hamburgerButton.setDisable(false);
+                });
+                menuTransition.play();
+                
+                buttonRotate.setByAngle(90);
+                buttonRotate.play();
                 isMenuOpen = false;
             } else {
-                // Apri il menu
-                TranslateTransition transition = new TranslateTransition(Duration.millis(200), controls);
-                transition.setToX(0);
-                transition.play();
-
-                hamburgerButton.setText("✕");
+                // open menu
+                menuTransition.setToX(0); 
+                menuTransition.setOnFinished(e -> {
+                    hamburgerButton.setText("✕"); // revert text after animation
+                    hamburgerButton.setDisable(false);
+                });
+                menuTransition.play();
+                
+                buttonRotate.setByAngle(90);
+                buttonRotate.play();
                 isMenuOpen = true;
             }
         });
-    }
-
-    
-    private void sleep(long time) {
-        try {
-            Thread.sleep(time);
-        } catch (InterruptedException e) {
-            System.err.println(e);
-        }
     }
     
     public void start() {
         world = new SimulationWorld();
         g2d = canvas.getGraphicsContext2D();
+        g2d.setGlobalAlpha(0.8);
         animationTimer1.start();
         thread1.start();
     }
 
-    private void updateWorld() {
-        world.update();
-    }
-
     private void drawBackground() {
-			try {
-				graphicsSemaphore.acquire();
-				g2d.setFill(Color.rgb(50, 50, 50));
-		        g2d.fillRect(0, 0, width, height);
-			} catch (InterruptedException e) {
-				System.out.println(e);
-				e.printStackTrace();
-			}finally {
-				graphicsSemaphore.release();
-		    }
+		g2d.setFill(Color.rgb(50, 50, 50));
+        g2d.fillRect(0, 0, width, height);
+
     }
     
-    private void drawGame() {
-        world.draw();
+    private void drawSimulation(GraphicsContext g2d) {
+        world.draw(g2d);
     }
     
-    static public void draw(WorldObject toDraw) {
-		try {
-			graphicsSemaphore.acquire();
-	    	toDraw.draw(g2d);
-			if(SimulationControls.isTrailOn) {
-				toDraw.drawTrail(g2d);
-			}
-		} catch (InterruptedException e) {
-			System.out.println(e);
-			e.printStackTrace();
-		}finally {
-			graphicsSemaphore.release();
-        }
-	}
 	
-	static public void drawCircle(double x,double y,int r) {
-		try {
-			graphicsSemaphore.acquire();
-			
+	static public void drawCircle(double x,double y, double r) {
 			//bisogna dare un colore per forza altrimenti la preview della prima particella non viene disegnata
 			//disegno il cerchio con il colore dato dal simulation controls
 			if(SimulationControls.isPositiveSelected>0)
-				g2d.setFill(Color.RED);
+				g2d.setFill(Color.web("#FF3B30"));
 			else if(SimulationControls.isPositiveSelected<0)
-				g2d.setFill(Color.BLUE);
+				g2d.setFill(Color.web("#007AFF"));
 			else
-				g2d.setFill(Color.GRAY);
+				g2d.setFill(Color.web("#8E8E93"));
 			
 		    g2d.fillOval(x, y, r, r);
-		} catch (InterruptedException e) {
-			System.out.println(e);
-			e.printStackTrace();
-		}finally {
-			graphicsSemaphore.release();
-	    }
+
 	}
     
     
@@ -256,19 +236,20 @@ public class SimulationPanel extends StackPane {
 	            @Override
 	            public void handle(long currentTime) {
 	            	
-	            	if (wasMousePrimaryDown) {
-	            		//disegno cerchio temporaneo al posto della particella
-	                	drawCircle(x1,y1,10);
-	            	}
+	            	
 	    			//se la distanza >5 (rilevante) calcolo la traiettoria
 	    			if(dist>5) {
 	    				
 		                if (wasMousePrimaryDown) {
-		                	world.trajectoryPreview(x1, y1, x2, y2, g2d);
+		                	world.trajectoryPreview(x1, y1, x2, y2, g2d, PHYSICS_DT);
 		                }else {
 		                	this.stop();
 		                }
 	    			}
+	    			if (wasMousePrimaryDown) {
+	            		//disegno cerchio temporaneo al posto della particella
+	                	drawCircle(x1,y1,10);
+	            	}
 	            }
 	        };
 	        animationTimer2.start();
@@ -301,7 +282,7 @@ public class SimulationPanel extends StackPane {
 		   
 			//se la distanza è maggiore di 5, (se la distanza è abbastanza rilevante) allora dò la spinta iniziale
 		    if(dist>5) {
-		    	world.calcInitForce(x1, y1, x2, y2);
+		    	world.calcInitForce(x1, y1, x2, y2, PHYSICS_DT);
 		    }
     	}
 	}

@@ -5,7 +5,7 @@ import particle_gravity_simulation.graphics.SimulationControls;
 
 public class Force {
     
-    
+    //direction
     public static AVector GravityV(WorldObject a, WorldObject b) {
     	if (a.getIsPositive() == 0 && b.getIsPositive() == 0) {
             return new AVector();
@@ -23,6 +23,7 @@ public class Force {
         return gravity;
     }
     
+    //magnitude
     private static double GravityM(WorldObject a, WorldObject b) {
     	double distanceSquared=a.getPosition().distanceSQ(b.getPosition());
     	
